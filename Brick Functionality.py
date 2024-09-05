@@ -4,6 +4,7 @@ from pygame import *
 from random import *
 pygame.init()
 
+
 red = pygame.Color(255, 0, 0)
 green = pygame.Color(0, 255, 0)
 pink = pygame.Color(255, 192, 203)
