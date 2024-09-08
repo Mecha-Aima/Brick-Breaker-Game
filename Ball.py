@@ -1,32 +1,51 @@
 import pygame
 
-# Global func use in main().py:
-def check_collision(ball: Ball, pad: Pad) -> bool:
-    # follow link for understanding pad collision logic (remove later):
-    #https://www.geeksforgeeks.org/check-if-any-point-overlaps-the-given-circle-and-rectangle/
+# return (pad,boundary,bricks)
+def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
 
-    #Check collision with the pad and reverse ball as well
-    closest_x = max(pad.x, min(ball.x, pad.x + pad.padWidth))
-    closest_y = max(pad.y, min(ball.y, pad.y + pad.padHeight))
+    # Check collision with the pad and reverse ball if necessary
+    tempPad = pygame.Rect(pad.x, pad.y, pad.padWidth, pad.padHeight)
+    pad_collision = ball.circle_rectangle_collision(tempPad)
     
-    distance_x = ball.x - closest_x
-    distance_y = ball.y - closest_y
-    
-    pad_collision = distance_x**2 + distance_y**2 <= ball.radius**2
-    if(pad_collision): #reverse on y
+    if pad_collision:
         ball.reverse_y()
-    
-    # Collision with screen boundaries
+        return (True,False,False) # ball can only collide with 1 surface at a time
+
+    # Check collision with screen boundaries
     boundary_collision = (
         ball.x - ball.radius <= 0 or  # Left boundary
         ball.x + ball.radius >= ball.screen_width or  # Right boundary
         ball.y - ball.radius <= 0 or  # Top boundary
         ball.y + ball.radius >= ball.screen_height  # Bottom boundary
     )
-    # Collision with bricks will be added here:
 
-    return boundary_collision or pad_collision
+    if(boundary_collision):
+        return (False,True,False)
+    
+    # Check collision with the bricks, reverse speed & check no. col
+    Brick_collition = False
+    for collision in brick.brickCoordinates:
+        tempBrick = pygame.Rect((collision[0], collision[1], 50, 50))
+
+        if ball.circle_rectangle_collision(tempBrick):
+            brickIndex = collision[4]  # Get the index of the brick
+            countCollision[brickIndex] += 1  # Increment collision count
+
+            # Check if the brick's hardness limit is reached
+            if countCollision[brickIndex] >= collision[3]:
+                brick.brickCoordinates.remove(collision)  # Remove the brick
+            # Reverse speed upon collision
+            ball.reverse_x()
+            ball.reverse_y()
+            Brick_collition = True
+            break  # Exit loop after handling one collision
+
+    if(Brick_collition):
+        return (False,False,True)
+    
+    return (False,False,False) # no collition
  
+
 class Ball:
     def __init__(self, radius : int, img : str, x : int, y : int, screen_width : int, screen_height : int, x_velocity : int, y_velocity : int) -> None:
         self.radius = radius  # ball radius
@@ -80,3 +99,18 @@ class Ball:
     def draw(self, screen : pygame.Surface) -> None:
         # draw ball image surface over the window
         screen.blit(self.image, (self.x - self.radius, self.y - self.radius))
+
+    def circle_rectangle_collision(self, rect):
+        cx, cy = self.x, self.y
+        rx, ry, rw, rh = rect
+
+        # Find the closest point on the rectangle to the circle's center
+        closest_x = max(rx, min(cx, rx + rw))
+        closest_y = max(ry, min(cy, ry + rh))
+
+        # Calculate the distance between the circle's center and the closest point
+        distance_x = cx - closest_x
+        distance_y = cy - closest_y
+        distance_squared = distance_x ** 2 + distance_y ** 2
+
+        return distance_squared <= self.radius ** 2
