@@ -1,6 +1,6 @@
 from Ball import Ball
 from striking_pad import Pad
-from bricks import Brick
+from Brick import Brick
 import pygame
 import sys
 
