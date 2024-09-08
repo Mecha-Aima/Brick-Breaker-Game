@@ -143,11 +143,11 @@ while not Game_Over:
     Key_press = pygame.key.get_pressed()
     if Key_press[pygame.K_SPACE]:
         Game_Start = True
-    if Key_press[pygame.K_LEFT]and Game_Start:
+    elif Key_press[pygame.K_LEFT]and Game_Start:
         pad.move(-Speed)
-    if Key_press[pygame.K_RIGHT]and Game_Start:
+    elif Key_press[pygame.K_RIGHT]and Game_Start:
         pad.move(Speed)
-    if Key_press[pygame.K_BACKSPACE]:
+    elif Key_press[pygame.K_BACKSPACE]:
         print(countCollision)
     # Move the ball
     if Game_Start:
