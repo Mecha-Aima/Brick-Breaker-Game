@@ -20,6 +20,8 @@ class Pad:
             self.x = 5
         elif self.x+5 >self.width-self.padWidth:
             self.x = self.width - self.padWidth - 5
-
+    def reset(self,width, height, padWidth, padHeight):
+        self.x =  (width - padWidth) // 2
+        self.y = height - padHeight - 50
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
