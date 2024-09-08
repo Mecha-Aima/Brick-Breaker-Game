@@ -1,6 +1,6 @@
-from Ball import Ball, check_collision
-from strickingPad import Pad
-from Brick import Brick
+from Ball import Ball
+from strikingPad import Pad
+from bricks import Brick
 import pygame
 import sys
 
@@ -55,6 +55,63 @@ Game_Start = False
 play_sound=False
 countCollision= [0 for x in range(0, 42)]
 
+
+#Collision 
+# return (pad,boundary/Bricks,Brick-Destroy,floor)
+def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
+
+    # Check collision with the pad and reverse ball if necessary
+    tempPad = pygame.Rect(pad.x, pad.y, pad.padWidth, pad.padHeight)
+    pad_collision = ball.circle_rectangle_collision(tempPad)
+    
+    if pad_collision:
+        ball.reverse_y()
+        return (True,False,False,False) # Ball can only collide with 1 surface at a time
+
+    # Check collision with screen boundaries
+    boundary_collision = (
+        ball.x - ball.radius <= 0 or  # Left boundary
+        ball.x + ball.radius >= ball.screen_width or  # Right boundary
+        ball.y - ball.radius <= 0 or  # Top boundary
+        ball.y + ball.radius >= ball.screen_height  # Bottom boundary
+    )
+
+    if(boundary_collision):
+        return (False,True,False,False)
+    
+    # Check collision with the bricks, reverse speed & check no. col
+    Brick_collition = False
+    Brick_Destroy=False
+    Floor_collision=False
+    for collision in brick.brickCoordinates:
+        tempBrick = pygame.Rect((collision[0], collision[1], 50, 50))
+
+        if ball.circle_rectangle_collision(tempBrick):
+            brickIndex = collision[4]  # Get the index of the brick
+            countCollision[brickIndex] += 1  # Increment collision count
+
+            # Check if the brick's hardness limit is reached
+            if countCollision[brickIndex] >= collision[3]:
+                brick.brickCoordinates.remove(collision)  # Remove the brick
+                Brick_Destroy=True
+            # Reverse speed upon collision
+            ball.reverse_y()
+            Brick_collition = True
+            break  # Exit loop after handling one collision
+
+    if(Brick_collition)and not (Brick_Destroy):
+        return (False,True,False,False)
+    elif(Brick_Destroy):
+        return (False,False,True,False)# If brick destroy
+   
+    if ball.y>=Screen_Height-20:
+        Floor_collision=True
+    if  Floor_collision:
+        return (False,False,False,True)
+    
+    return (False,False,False,False) # No collition
+
+
 # Create a Ball object
 ball = Ball(
     Ball_Radius,
@@ -102,6 +159,8 @@ while not Game_Over:
 
     elif Collsion_Check[3]==1:
         Game_OV_Sound.play()
+        ball.reset(Ball_X,Ball_Y)
+        pad.reset(Screen_Width,Screen_Height,Pad_Width,Pad_Height)
         Lives-=1
         Game_Start=False
     
