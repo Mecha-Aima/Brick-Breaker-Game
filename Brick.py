@@ -1,5 +1,4 @@
 import pygame
-from pygame import *
 from random import *
 
 # assign colours and hardness
