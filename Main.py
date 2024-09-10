@@ -57,10 +57,17 @@ countCollision= [0 for x in range(0, 42)]
 
 # Function to display the 'Game Over' message
 def display_game_over():
-    font = pygame.font.Font(None, 72)  # Adjust font size as needed
-    text_surface = font.render("GAME OVER", True, (255, 0, 0))  # Red text
-    text_rect = text_surface.get_rect(center=(Screen_Width // 2, Screen_Height // 2))
-    Screen.blit(text_surface, text_rect)
+    font = pygame.font.Font(None, 72)  # Set the font and size
+    game_over_message = font.render("GAME OVER", True, (255, 10, 10))  
+    text_rect = game_over_message.get_rect(center=(Screen_Width // 2, Screen_Height // 2))
+    Screen.blit(game_over_message, text_rect)
+
+    # Score message
+    font = pygame.font.Font(None, 36)  # Set the font and size
+    score_message = font.render(f"Your score: {Score}", True, (255, 255, 255))
+    score_rect = score_message.get_rect(center=(Screen_Width // 2, Screen_Height // 2 + 50))
+    Screen.blit(score_message, score_rect)
+
     pygame.display.flip()
     waiting = True
     while waiting:
