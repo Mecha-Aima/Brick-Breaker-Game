@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 from random import *
 
 # assign colours and hardness
@@ -9,7 +10,19 @@ color_hardness = {
     4: (pygame.Color(242, 61, 61), 2),      # red, hardness 2
     5: (pygame.Color(28, 147, 255), 3)       # blue, hardness 3
 }
-countCollision = [0 for x in range(0, 42)]
+
+# Define probability distributions for different levels
+level_probabilities = {
+    1: np.array([0.2, 0.3, 0.2, 0.2, 0.1]),  # Level 1 probabilities
+    2: np.array([0.1, 0.1, 0.3, 0.3, 0.2]),  # Level 2 probabilities
+    3: np.array([0.1, 0.1, 0.2, 0.2, 0.4])  # Level 3 probabilities
+}
+
+level_brick_counts = {
+    1: 28,  # Level 1: 42 bricks
+    2: 42,  # Level 2: 56 bricks
+    3: 56  # Level 3: 70 bricks
+}
 
 class Brick:
     x_position: int
@@ -19,18 +32,24 @@ class Brick:
     brickCoordinates = []
     countIndex: int = 0
 
-    def __init__(self):
+    def __init__(self, level):
         self.start_X = 35  # Starting X position for bricks
         self.start_Y = 37  # Starting Y position for bricks
         self.x_position: int
         self.y_position: int
+        probabilities = level_probabilities[level]
 
-        for i in range(3):  # Number of rows
+        num_rows, num_col = 3, 14
+        if level in level_brick_counts:
+            num_rows, num_col = level_brick_counts[level] // 14, 14
+
+        for i in range(num_rows):  # Number of rows
             x_position = self.start_X  # Reset X position for each row
             y_position = self.start_Y + i * 52  # Calculate Y position for each row
 
-            for j in range(14):  # Number of columns
-                assignment = randint(1, 5)
+            for j in range(num_col):  # Number of columns
+                # Select a random color based on probabilities
+                assignment = np.random.choice(list(color_hardness.keys()), p=probabilities)
                 self.color, self.hardness = color_hardness[assignment] # assigns stuff according to hardness(dict)
 
                 coordinates = (x_position, y_position, self.color, self.hardness, self.countIndex)

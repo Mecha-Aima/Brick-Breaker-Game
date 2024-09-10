@@ -218,7 +218,7 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
     if  Floor_collision:
         return (False,False,False,True)
     
-    return (False,False,False,False) # No collition
+    return (False,False,False,False) # No collision
 #Level_up,Increase Speed and make bricks More harder
 def level_up():
     global Level, ball, Bricks,Speed
@@ -231,7 +231,7 @@ def level_up():
 
 # Defining Variables
 Lives=3
-Level=1
+Level=3
 Speed=10
 Score=0
 High_score=0
@@ -246,7 +246,7 @@ Collsion_Check=()
 Game_Over = False
 Game_Start = False  
 play_sound=False
-countCollision= [0 for x in range(0, 42)]
+countCollision= [0 for _ in range(0, (Level + 2)*14)]
 
 small_text = pygame.font.Font(None, 36)
 
@@ -268,7 +268,7 @@ ball = Ball(
 pad = Pad(Pad_sprite,Screen_Width,Screen_Height,Pad_Width,Pad_Height)
 
 #Create Bricks
-Bricks=Brick()
+Bricks=Brick(Level)
 
 # Main game loop
 while not Game_Over:
