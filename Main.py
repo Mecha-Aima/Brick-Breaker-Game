@@ -26,7 +26,8 @@ evil_sound=pygame.mixer.Sound("Assets/evil.mp3")
 Win_sound=pygame.mixer.Sound("Assets/Win.wav")
 Background = pygame.image.load("Assets/back.jpg").convert()
 Background = pygame.transform.smoothscale(Background, (Screen_Width, Screen_Height))
-Menu_background="Assets/menu-bg.png"
+Menu_background="Assets/Breakout.jpg"
+Game_OV_BG="Assets/Game_Over_Bg.jpg"
 Pad_sprite="Assets/paddle.png"
 Ball_Sprite="Assets/ball.png"
 Brick_img="Assets/wood.jpg"
@@ -72,7 +73,6 @@ def main_menu(background_image_path):
         quit_text_rect = quit_text.get_rect(center=quit_button_rect.center)
 
 
-        mouse_pos = pygame.mouse.get_pos()
         # Button hover effects
         mouse_pos = pygame.mouse.get_pos()
         for button_rect, button_text_rect in [
@@ -103,29 +103,67 @@ def main_menu(background_image_path):
                     pygame.quit()
                     sys.exit()
 
+def display_game_over(Game_OV):
+    # Button variables
+    but_width = 200
+    but_height = 50
+    button_color = (200, 200, 200)  # Light Gray
+    button_hover_color = (255, 69, 0)  # Bright Red
 
 
-
-# Function to display the 'Game Over' message
-def display_game_over():
-    font = pygame.font.Font(None, 72)  # Set the font and size
-    game_over_message = font.render("GAME OVER", True, (255, 10, 10))  
-    text_rect = game_over_message.get_rect(center=(Screen_Width // 2, Screen_Height // 2))
-    Screen.blit(game_over_message, text_rect)
-
-    # Score message
-    score_message = small_text.render(f"Your score: {Score}", True, (255, 255, 255))
-    score_rect = score_message.get_rect(center=(Screen_Width // 2, Screen_Height // 2 + 50))
-    Screen.blit(score_message, score_rect)
-
-    pygame.display.flip()
+    
+    # Load Game Over background
+    game_ov_bg = pygame.image.load(Game_OV)
+    game_ov_bg = pygame.transform.smoothscale(game_ov_bg, (Screen_Width, Screen_Height))
+    
+    small_font = pygame.font.Font(None, 24)
+    
     waiting = True
     while waiting:
+        Screen.blit(game_ov_bg, (0, 0))
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        score_message = small_text.render(f"Your score: {Score}", True, (255, 255, 255))
+        score_rect = score_message.get_rect(center=(Screen_Width // 2, Screen_Height // 2 - 100))
+        Screen.blit(score_message, score_rect)
+
+        button_gap = 20  
+        bottom_padding = 50 
+
+        # Main Menu button
+        Main_menu_but = pygame.Rect((Screen_Width // 2 - but_width // 2,Screen_Height - but_height - bottom_padding - button_gap, but_width, but_height))
+        main_menu_text = small_font.render("Main Menu", True, (255, 255, 255))
+        main_menu_text_rect = main_menu_text.get_rect(center=Main_menu_but.center)
+
+        # Restart button 
+        Restart_button = pygame.Rect((Screen_Width // 2 - but_width // 2,Screen_Height - 2 * (but_height + button_gap) - bottom_padding, but_width,but_height))
+        restart_surface = small_font.render("Restart", True, (255, 255, 255))
+        restart_text_rect = restart_surface.get_rect(center=Restart_button.center)
+
+        #Effects
+        for button_rect, button_text, button_text_rect in [
+            (Main_menu_but, main_menu_text, main_menu_text_rect),
+            (Restart_button, restart_surface, restart_text_rect)]:
+            
+            if button_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(Screen, button_hover_color, button_rect)
+            else:
+                pygame.draw.rect(Screen, button_color, button_rect)
+
+            Screen.blit(button_text, button_text_rect)
+
+        pygame.display.flip()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                waiting = False
-            elif event.type == pygame.KEYDOWN:
-                 waiting = False 
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN: 
+                if Main_menu_but.collidepoint(mouse_pos):
+                    return False  # Go to Main Menu
+                elif Restart_button.collidepoint(mouse_pos):
+                    return True # Restart the game
 
 #Collision 
 # return (pad,boundary/Bricks,Brick-Destroy,floor)
@@ -167,7 +205,7 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
                 Brick_Destroy=True
             # Reverse speed upon collision
             ball.reverse_y()
-            Brick_collition = True
+            Brick_collision = True
             break  # Exit loop after handling one collision
 
     if(Brick_collision)and not (Brick_Destroy):
@@ -175,13 +213,21 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
     elif(Brick_Destroy):
         return (False,False,True,False)# If brick destroy
    
-    if ball.y>=Screen_Height-20:
-        Floor_collision=True
+    if ball.y + ball.y_velocity > Screen_Height - ball.radius:
+        Floor_collision = True
     if  Floor_collision:
         return (False,False,False,True)
     
     return (False,False,False,False) # No collition
-
+#Level_up,Increase Speed and make bricks More harder
+def level_up():
+    global Level, ball, Bricks,Speed
+    Level += 1
+    Speed += 3  # Increase pad speed
+    ball.reset(Ball_X,Ball_Y)
+    ball.increase_speed(2)  # Increase ball speed by 2 units
+    pad.reset(Screen_Width,Screen_Height,Pad_Width,Pad_Height)
+    
 
 # Defining Variables
 Lives=3
@@ -238,8 +284,6 @@ while not Game_Over:
         pad.move(-Speed)
     elif Key_press[pygame.K_RIGHT]and Game_Start:
         pad.move(Speed)
-    elif Key_press[pygame.K_BACKSPACE]:
-        print(countCollision)
     # Move the ball
     if Game_Start:
         ball.move()
@@ -262,6 +306,7 @@ while not Game_Over:
     
     #Check win
     if not 0 in countCollision:
+        level_up()
         Win_sound.play()
         Level+=1
     #Draw the Background
@@ -281,8 +326,7 @@ while not Game_Over:
     #Game_Over
     if Lives==0:
         Game_Over=True
-        display_game_over()
-        if main_menu(Menu_background):
+        if display_game_over(Game_OV_BG) or main_menu(Menu_background):
             Game_Over=False
             Game_Start=False
             Score=0
