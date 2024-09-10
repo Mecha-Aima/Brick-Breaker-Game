@@ -3,11 +3,11 @@ from random import *
 
 # assign colours and hardness
 color_hardness = {
-    1: (pygame.Color(255, 192, 203), 1),  # pink, hardness 1
-    2: (pygame.Color(255, 215, 0), 1),    # yellow, hardness 1
-    3: (pygame.Color(0, 255, 0), 2),      # green, hardness 2
-    4: (pygame.Color(255, 0, 0), 2),      # red, hardness 2
-    5: (pygame.Color(0, 0, 255), 3)       # blue, hardness 3
+    1: (pygame.Color(242, 135, 5), 1),  # orange, hardness 1
+    2: (pygame.Color(242, 199, 68), 1),    # yellow, hardness 1
+    3: (pygame.Color(4, 216, 156), 2),      # green, hardness 2
+    4: (pygame.Color(242, 61, 61), 2),      # red, hardness 2
+    5: (pygame.Color(28, 147, 255), 3)       # blue, hardness 3
 }
 countCollision = [0 for x in range(0, 42)]
 

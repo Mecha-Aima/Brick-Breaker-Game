@@ -289,7 +289,7 @@ while not Game_Over:
             Lives=3
             Level=1
     
-    Clock.tick(30)
+    Clock.tick(60)
     # Display Score at bottom right corner
     score_text = small_text.render(f"Score: {Score}", True, (144, 238, 144)) # soft green
     score_rect = score_text.get_rect(center=(Screen_Width - 100, Screen_Height - 50))
