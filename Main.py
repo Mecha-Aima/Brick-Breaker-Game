@@ -1,6 +1,6 @@
 from Ball import Ball
 from strikingPad import Pad
-from Brick import Brick
+from bricks import Brick
 import pygame
 import sys
 
@@ -26,6 +26,7 @@ evil_sound=pygame.mixer.Sound("Assets/evil.mp3")
 Win_sound=pygame.mixer.Sound("Assets/Win.wav")
 Background = pygame.image.load("Assets/back.jpg").convert()
 Background = pygame.transform.smoothscale(Background, (Screen_Width, Screen_Height))
+Menu_background="Assets/Breakout.jpg"
 Pad_sprite="Assets/paddle.png"
 Ball_Sprite="Assets/ball.png"
 Brick_img="Assets/wood.jpg"
@@ -56,6 +57,41 @@ play_sound=False
 countCollision= [0 for x in range(0, 42)]
 
 small_text = pygame.font.Font(None, 36)
+
+
+# Function to display the 'Main Menu'
+def main_menu(background_image_path):
+    # Load the background image using the provided path
+    background_image = pygame.image.load(background_image_path).convert()
+    background_image = pygame.transform.smoothscale(background_image, (Screen_Width, Screen_Height))
+
+    small_font = pygame.font.Font(None, 36)  # Smaller font for menu options
+
+    while True:
+        Screen.blit(background_image, (0, 0))
+        #These should be changed to buttons
+        start_text = small_font.render("Press Space to Start", True, (255, 255, 255))#Menu on top of background
+        exit_text = small_font.render("Press Esc to Quit", True, (255, 255, 255))
+
+        start_rect = start_text.get_rect(center=(Screen_Width // 2, Screen_Height-200))
+        exit_rect = exit_text.get_rect(center=(Screen_Width // 2, Screen_Height -150))
+
+        Screen.blit(start_text, start_rect)#Draw texts
+        Screen.blit(exit_text, exit_rect)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    return  # Start the game
+                elif event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
 
 
 
@@ -210,7 +246,8 @@ while not Game_Over:
     #Game_Over
     if Lives==0:
         Game_Over=True
-        display_game_over();
+        display_game_over()
+        main_menu(Menu_background)
     
     Clock.tick(60)
     # Display Score at bottom right corner
