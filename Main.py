@@ -55,6 +55,10 @@ Game_Start = False
 play_sound=False
 countCollision= [0 for x in range(0, 42)]
 
+small_text = pygame.font.Font(None, 36)
+
+
+
 # Function to display the 'Game Over' message
 def display_game_over():
     font = pygame.font.Font(None, 72)  # Set the font and size
@@ -63,8 +67,7 @@ def display_game_over():
     Screen.blit(game_over_message, text_rect)
 
     # Score message
-    font = pygame.font.Font(None, 36)  # Set the font and size
-    score_message = font.render(f"Your score: {Score}", True, (255, 255, 255))
+    score_message = small_text.render(f"Your score: {Score}", True, (255, 255, 255))
     score_rect = score_message.get_rect(center=(Screen_Width // 2, Screen_Height // 2 + 50))
     Screen.blit(score_message, score_rect)
 
@@ -177,6 +180,7 @@ while not Game_Over:
         Hit_Sound.play()
     elif Collsion_Check[2]==1:
         Break_Sound.play()
+        Score += 10
 
     elif Collsion_Check[3]==1:
         Game_OV_Sound.play()
@@ -185,10 +189,6 @@ while not Game_Over:
         Lives-=1
         Game_Start=False
     
-    #Game_Over
-    if Lives==0:
-        Game_Over=True
-        display_game_over();
     #Check win
     if not 0 in countCollision:
         Win_sound.play()
@@ -206,7 +206,17 @@ while not Game_Over:
         Screen.blit(life_image, (life_x, life_y))
         life_x+=30
     life_x=10
+    
+    #Game_Over
+    if Lives==0:
+        Game_Over=True
+        display_game_over();
+    
     Clock.tick(60)
+    # Display Score at bottom right corner
+    score_text = small_text.render(f"Score: {Score}", True, (144, 238, 144)) # soft green
+    score_rect = score_text.get_rect(center=(Screen_Width - 100, Screen_Height - 50))
+    Screen.blit(score_text, score_rect)
     # Update the display
     pygame.display.flip()
 
