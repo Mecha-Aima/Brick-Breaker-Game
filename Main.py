@@ -1,6 +1,6 @@
 from Ball import Ball
 from strikingPad import Pad
-from bricks import Brick
+from Brick import Brick
 import pygame
 import sys
 
@@ -80,7 +80,7 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
         return (False,True,False,False)
     
     # Check collision with the bricks, reverse speed & check no. col
-    Brick_collition = False
+    Brick_collision = False
     Brick_Destroy=False
     Floor_collision=False
     for collision in brick.brickCoordinates:
@@ -99,7 +99,7 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
             Brick_collition = True
             break  # Exit loop after handling one collision
 
-    if(Brick_collition)and not (Brick_Destroy):
+    if(Brick_collision)and not (Brick_Destroy):
         return (False,True,False,False)
     elif(Brick_Destroy):
         return (False,False,True,False)# If brick destroy
