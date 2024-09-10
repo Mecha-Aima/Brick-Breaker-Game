@@ -51,7 +51,7 @@ class Ball:
             self.reverse_y()
     def reset(self,x,y):
         self.x = x
-        self.y=y
+        self.y = y
 
     def draw(self, screen : pygame.Surface) -> None:
         # draw ball image surface over the window
