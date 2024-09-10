@@ -1,6 +1,6 @@
 from Ball import Ball
 from strikingPad import Pad
-from bricks import Brick
+from Brick import Brick
 import pygame
 import sys
 
@@ -26,7 +26,7 @@ evil_sound=pygame.mixer.Sound("Assets/evil.mp3")
 Win_sound=pygame.mixer.Sound("Assets/Win.wav")
 Background = pygame.image.load("Assets/back.jpg").convert()
 Background = pygame.transform.smoothscale(Background, (Screen_Width, Screen_Height))
-Menu_background="Assets/Breakout.jpg"
+Menu_background="Assets/menu-bg.png"
 Pad_sprite="Assets/paddle.png"
 Ball_Sprite="Assets/ball.png"
 Brick_img="Assets/wood.jpg"
@@ -36,59 +36,70 @@ life_rect = life_image.get_rect()
 life_x = 10   # 10 pixels padding from the right
 life_y =  Screen_Height - life_rect.height - 30# 10 pixels padding from the bottom
 
-
-# Defining Variables
-Lives=3
-Level=1
-Speed=10
-Score=0
-High_score=0
-Ball_Radius = 15
-Ball_X = Screen_Width // 2 
-Ball_Y = Screen_Height // 2  
-Ball_X_Velocity = 7
-Ball_Y_Velocity = 7
-Pad_Width=100
-Pad_Height=15
-Collsion_Check=()
-Game_Over = False
-Game_Start = False  
-play_sound=False
-countCollision= [0 for x in range(0, 42)]
-
-small_text = pygame.font.Font(None, 36)
-
-
 # Function to display the 'Main Menu'
 def main_menu(background_image_path):
     # Load the background image using the provided path
     background_image = pygame.image.load(background_image_path).convert()
     background_image = pygame.transform.smoothscale(background_image, (Screen_Width, Screen_Height))
 
-    small_font = pygame.font.Font(None, 36)  # Smaller font for menu options
+    # Button dimensions and colors
+    button_width = 200
+    button_height = 50
+    button_color = (255, 22, 15) 
+    button_hover_color = (254, 147, 36)
+    small_font = pygame.font.Font(None, 24)  # Smaller font for menu options
+
+    # Sound toggle state (True = On, False = Off)
+    is_sound_on = True
 
     while True:
         Screen.blit(background_image, (0, 0))
-        #These should be changed to buttons
-        start_text = small_font.render("Press Space to Start", True, (255, 255, 255))#Menu on top of background
-        exit_text = small_font.render("Press Esc to Quit", True, (255, 255, 255))
+        # Start Game button
+        start_button_rect = pygame.Rect(20, 20 , button_width, button_height)
+        start_text = small_font.render("Start Game", True, (255, 255, 255))
+        start_text_rect = start_text.get_rect(center=start_button_rect.center)
 
-        start_rect = start_text.get_rect(center=(Screen_Width // 2, Screen_Height-200))
-        exit_rect = exit_text.get_rect(center=(Screen_Width // 2, Screen_Height -150))
 
-        Screen.blit(start_text, start_rect)#Draw texts
-        Screen.blit(exit_text, exit_rect)
+        # Sound toggle button
+        sound_text = "Sound: On" if is_sound_on else "Sound: Off"
+        sound_button_rect = pygame.Rect(20, 40 + button_height , button_width, button_height)
+        sound_text_surface = small_font.render(sound_text, True, (255, 255, 255))
+        sound_text_rect = sound_text_surface.get_rect(center=sound_button_rect.center)
 
+        # Quit Game button
+        quit_button_rect = pygame.Rect(20, 110 + button_height, button_width, button_height)
+        quit_text = small_font.render("Quit Game", True, (255, 255, 255))
+        quit_text_rect = quit_text.get_rect(center=quit_button_rect.center)
+
+
+        mouse_pos = pygame.mouse.get_pos()
+        # Button hover effects
+        mouse_pos = pygame.mouse.get_pos()
+        for button_rect, button_text_rect in [
+            (start_button_rect, start_text_rect),
+            (quit_button_rect, quit_text_rect),
+            (sound_button_rect, sound_text_rect)]:
+
+            if button_rect.collidepoint(mouse_pos):
+                pygame.draw.rect(Screen, button_hover_color, button_rect)
+            else:
+                pygame.draw.rect(Screen, button_color, button_rect)
+
+        Screen.blit(start_text, start_text_rect)#Draw texts
+        Screen.blit(quit_text, quit_text_rect)
+        Screen.blit(sound_text_surface, sound_text_rect)
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    return  # Start the game
-                elif event.key == pygame.K_ESCAPE:
+            elif event.type == pygame.MOUSEBUTTONDOWN: 
+                if start_button_rect.collidepoint(mouse_pos): 
+                    return True # Start the game
+                elif sound_button_rect.collidepoint(mouse_pos):
+                    is_sound_on = not is_sound_on  # Toggle sound state
+                elif quit_button_rect.collidepoint(mouse_pos):
                     pygame.quit()
                     sys.exit()
 
@@ -172,6 +183,30 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
     return (False,False,False,False) # No collition
 
 
+# Defining Variables
+Lives=3
+Level=1
+Speed=10
+Score=0
+High_score=0
+Ball_Radius = 15
+Ball_X = Screen_Width // 2 
+Ball_Y = Screen_Height // 2  
+Ball_X_Velocity = 7
+Ball_Y_Velocity = 7
+Pad_Width=100
+Pad_Height=15
+Collsion_Check=()
+Game_Over = False
+Game_Start = False  
+play_sound=False
+countCollision= [0 for x in range(0, 42)]
+
+small_text = pygame.font.Font(None, 36)
+
+if not main_menu(Menu_background):
+    Game_Over = True
+
 # Create a Ball object
 ball = Ball(
     Ball_Radius,
@@ -247,9 +282,14 @@ while not Game_Over:
     if Lives==0:
         Game_Over=True
         display_game_over()
-        main_menu(Menu_background)
+        if main_menu(Menu_background):
+            Game_Over=False
+            Game_Start=False
+            Score=0
+            Lives=3
+            Level=1
     
-    Clock.tick(60)
+    Clock.tick(30)
     # Display Score at bottom right corner
     score_text = small_text.render(f"Score: {Score}", True, (144, 238, 144)) # soft green
     score_rect = score_text.get_rect(center=(Screen_Width - 100, Screen_Height - 50))
