@@ -55,6 +55,20 @@ Game_Start = False
 play_sound=False
 countCollision= [0 for x in range(0, 42)]
 
+# Function to display the 'Game Over' message
+def display_game_over():
+    font = pygame.font.Font(None, 72)  # Adjust font size as needed
+    text_surface = font.render("GAME OVER", True, (255, 0, 0))  # Red text
+    text_rect = text_surface.get_rect(center=(Screen_Width // 2, Screen_Height // 2))
+    Screen.blit(text_surface, text_rect)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                waiting = False
+            elif event.type == pygame.KEYDOWN:
+                 waiting = False 
 
 #Collision 
 # return (pad,boundary/Bricks,Brick-Destroy,floor)
@@ -167,6 +181,7 @@ while not Game_Over:
     #Game_Over
     if Lives==0:
         Game_Over=True
+        display_game_over();
     #Check win
     if not 0 in countCollision:
         Win_sound.play()
