@@ -53,6 +53,10 @@ class Ball:
         self.x = x
         self.y=y
 
+    def increase_speed(self, factor):
+        self.x_velocity += factor
+        self.y_velocity += factor
+
     def draw(self, screen : pygame.Surface) -> None:
         # draw ball image surface over the window
         screen.blit(self.image, (self.x - self.radius, self.y - self.radius))

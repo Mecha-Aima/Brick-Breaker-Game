@@ -219,6 +219,7 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
         return (False,False,False,True)
     
     return (False,False,False,False) # No collision
+
 #Level_up,Increase Speed and make bricks More harder
 def level_up():
     global Level, ball, Bricks,Speed
@@ -296,7 +297,6 @@ while not Game_Over:
     elif Collsion_Check[2]==1:
         Break_Sound.play()
         Score += 10
-
     elif Collsion_Check[3]==1:
         Game_OV_Sound.play()
         ball.reset(Ball_X,Ball_Y)
