@@ -42,7 +42,7 @@ class Brick:
         num_rows, num_col = 3, 14
         if level in level_brick_counts:
             num_rows, num_col = level_brick_counts[level] // 14, 14
-
+        self.brickCoordinates.clear()#Clear Brick Coordinates
         for i in range(num_rows):  # Number of rows
             x_position = self.start_X  # Reset X position for each row
             y_position = self.start_Y + i * 52  # Calculate Y position for each row
