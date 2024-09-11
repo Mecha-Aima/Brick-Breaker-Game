@@ -22,14 +22,12 @@ Hit_Sound = pygame.mixer.Sound("Assets/Hit.wav")
 Break_Sound = pygame.mixer.Sound("Assets/Break.wav")
 Paddle_Hit=pygame.mixer.Sound("Assets/Paddle_hit.wav")
 Game_OV_Sound=pygame.mixer.Sound("Assets/Game_lost.mp3")
-Lost_life_sound=pygame.mixer.Sound("Assets/Lost_life.wav")
-pygame.mixer.music.load("Assets/Main_sound.wav")
 evil_sound=pygame.mixer.Sound("Assets/evil.mp3")
 Win_sound=pygame.mixer.Sound("Assets/Win.wav")
 Background = pygame.image.load("Assets/back.jpg").convert()
 Background = pygame.transform.smoothscale(Background, (Screen_Width, Screen_Height))
-Menu_background="Assets/Breakout.png"
-Game_OV_BG="Assets/Game_Over_Bg.jpg"
+Menu_background="Assets/menu-bg.png"
+Game_OV_BG="Assets/Game_ov.jpg"
 Pad_sprite="Assets/paddle.png"
 Ball_Sprite="Assets/ball.png"
 Brick_img="Assets/wood.jpg"
@@ -48,23 +46,24 @@ def main_menu(background_image_path):
     # Button dimensions and colors
     button_width = 200
     button_height = 50
-    button_color = (255, 22, 15)
+    button_color = (255, 22, 15) 
     button_hover_color = (254, 147, 36)
     small_font = pygame.font.Font(None, 24)  # Smaller font for menu options
 
+    # Sound toggle state (True = On, False = Off)
     is_sound_on = True
-    pygame.mixer.music.play(loops=-1) if is_sound_on else pygame.mixer.music.stop()
 
     while True:
         Screen.blit(background_image, (0, 0))
         # Start Game button
-        start_button_rect = pygame.Rect(20, 20, button_width, button_height)
+        start_button_rect = pygame.Rect(20, 20 , button_width, button_height)
         start_text = small_font.render("Start Game", True, (255, 255, 255))
         start_text_rect = start_text.get_rect(center=start_button_rect.center)
 
+
         # Sound toggle button
         sound_text = "Sound: On" if is_sound_on else "Sound: Off"
-        sound_button_rect = pygame.Rect(20, 40 + button_height, button_width, button_height)
+        sound_button_rect = pygame.Rect(20, 40 + button_height , button_width, button_height)
         sound_text_surface = small_font.render(sound_text, True, (255, 255, 255))
         sound_text_rect = sound_text_surface.get_rect(center=sound_button_rect.center)
 
@@ -72,6 +71,7 @@ def main_menu(background_image_path):
         quit_button_rect = pygame.Rect(20, 110 + button_height, button_width, button_height)
         quit_text = small_font.render("Quit Game", True, (255, 255, 255))
         quit_text_rect = quit_text.get_rect(center=quit_button_rect.center)
+
 
         # Button hover effects
         mouse_pos = pygame.mouse.get_pos()
@@ -85,7 +85,7 @@ def main_menu(background_image_path):
             else:
                 pygame.draw.rect(Screen, button_color, button_rect)
 
-        Screen.blit(start_text, start_text_rect)  # Draw texts
+        Screen.blit(start_text, start_text_rect)#Draw texts
         Screen.blit(quit_text, quit_text_rect)
         Screen.blit(sound_text_surface, sound_text_rect)
         pygame.display.flip()
@@ -94,15 +94,11 @@ def main_menu(background_image_path):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if start_button_rect.collidepoint(mouse_pos):
-                    return True  # Start the game
+            elif event.type == pygame.MOUSEBUTTONDOWN: 
+                if start_button_rect.collidepoint(mouse_pos): 
+                    return True # Start the game
                 elif sound_button_rect.collidepoint(mouse_pos):
-                    is_sound_on = not is_sound_on 
-                    if is_sound_on:
-                        pygame.mixer.music.play(loops=-1)
-                    else:
-                        pygame.mixer.music.stop()
+                    is_sound_on = not is_sound_on  # Toggle sound state
                 elif quit_button_rect.collidepoint(mouse_pos):
                     pygame.quit()
                     sys.exit()
@@ -113,7 +109,7 @@ def display_game_over(Game_OV):
     but_height = 50
     button_color = (200, 200, 200)  # Light Gray
     button_hover_color = (255, 69, 0)  # Bright Red
-    pygame.mixer.music.stop()
+
 
     
     # Load Game Over background
@@ -222,7 +218,7 @@ def check_collision(ball: Ball, pad: Pad, brick: Brick) -> tuple:
     if  Floor_collision:
         return (False,False,False,True)
     
-    return (False,False,False,False) # No collition
+    return (False,False,False,False) # No collision
 #Level_up,Increase Speed and make bricks More harder
 def level_up():
     global Level, ball, Bricks,Speed
@@ -235,7 +231,7 @@ def level_up():
 
 # Defining Variables
 Lives=3
-Level=1
+Level=3
 Speed=10
 Score=0
 High_score=0
@@ -251,7 +247,6 @@ Game_Over = False
 Game_Start = False  
 play_sound=False
 countCollision= [0 for _ in range(0, (Level + 2)*14)]
-
 
 small_text = pygame.font.Font(None, 36)
 
@@ -285,7 +280,7 @@ while not Game_Over:
     Key_press = pygame.key.get_pressed()
     if Key_press[pygame.K_SPACE]:
         Game_Start = True
-    if Key_press[pygame.K_LEFT]and Game_Start:
+    elif Key_press[pygame.K_LEFT]and Game_Start:
         pad.move(-Speed)
     elif Key_press[pygame.K_RIGHT]and Game_Start:
         pad.move(Speed)
@@ -303,19 +298,17 @@ while not Game_Over:
         Score += 10
 
     elif Collsion_Check[3]==1:
-        if Lives>1:
-            Lost_life_sound.play()
+        Game_OV_Sound.play()
         ball.reset(Ball_X,Ball_Y)
         pad.reset(Screen_Width,Screen_Height,Pad_Width,Pad_Height)
         Lives-=1
         Game_Start=False
     
     #Check win
-    if not Bricks.brickCoordinates:
+    if not 0 in countCollision:
         level_up()
         Win_sound.play()
-        Bricks=Brick(Level)
-        countCollision = [0 for _ in range(len(Bricks.brickCoordinates))]
+        Level+=1
     #Draw the Background
     Screen.blit(Background, (0, 0))
     # Draw the ball
@@ -325,15 +318,14 @@ while not Game_Over:
     #Display Bricks
     Bricks.displayBrick(Screen)
     #Draw lives
-    life_x=10
     for i in range(Lives):
         Screen.blit(life_image, (life_x, life_y))
         life_x+=30
+    life_x=10
     
     #Game_Over
-    if Lives<1:
+    if Lives==0:
         Game_Over=True
-        Game_OV_Sound.play()
         if display_game_over(Game_OV_BG) or main_menu(Menu_background):
             Game_Over=False
             Game_Start=False
