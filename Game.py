@@ -5,10 +5,11 @@ from strikingPad import Pad
 from Brick import Brick
 
 class Game:
-    def __init__(self, level, score):
+    def __init__(self, level, score, highscore=0):
        # Initialize the game with level and score as arguments
         self.level = level
         self.score = score
+        self.highscore = highscore
         self.lives = 3 if level < 3 else 3  # Default starting lives
         self.speed = 12  # Default pad speed
         self.game_over = False
@@ -136,8 +137,7 @@ class Game:
                         else:
                             pygame.mixer.music.stop()
                     elif quit_button_rect.collidepoint(mouse_pos):
-                        pygame.quit()
-                        sys.exit()
+                        return False
     
 
     def display_game_over(self, Game_OV):
@@ -160,8 +160,14 @@ class Game:
 
             mouse_pos = pygame.mouse.get_pos()
 
+            # Check for new highscore
+            if self.score > self.highscore:
+                highscore_message = small_font.render("New Highscore!", True, (144, 238, 144))  # Soft green color for highscore
+                highscore_rect = highscore_message.get_rect(center=(self.screen_width // 2, 50))  # Centered with y-offset of 50px
+                self.screen.blit(highscore_message, highscore_rect)
+                
             score_message = self.small_text.render(f"Your score: {self.score}", True, (255, 255, 255))
-            score_rect = score_message.get_rect(center=(self.screen_width // 2, self.screen_height // 2 - 100))
+            score_rect = score_message.get_rect(center=(self.screen_width // 2, self.screen_height // 2 - 200))
             self.screen.blit(score_message, score_rect)
 
             button_gap = 20  
@@ -329,10 +335,15 @@ class Game:
             if self.lives<1:
                 self.game_over=True
                 self.Game_OV_Sound.play()
-                if self.display_game_over(self.Game_OV_BG) or self.main_menu(): # Returns true for game restart
+
+                if self.display_game_over(self.Game_OV_BG): # Returns true for game restart
                     self.game_over=False
                     self.game_start=False
                     return "restart"
+                elif not self.main_menu():
+                    return 'exit'
+                else:
+                    return 'restart'
                     
             self.clock.tick(60)
             # Display Score at bottom right corner
@@ -355,6 +366,12 @@ class Game:
 
         # Display the resized image
         self.screen.blit(you_won_image, (0, 0))
+
+        if self.score > self.highscore:
+            highscore_message = self.small_font.render("New Highscore!", True, (144, 238, 144)) 
+            highscore_rect = highscore_message.get_rect(center=(self.screen_width // 2, 50))  # Centered with y-offset of 50px
+            self.screen.blit(highscore_message, highscore_rect)
+                         
         pygame.display.flip()
         
         # Wait for a while before closing or going to main menu
