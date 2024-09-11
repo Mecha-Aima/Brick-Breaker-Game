@@ -70,4 +70,8 @@ class Ball:
         distance_squared = distance_x ** 2 + distance_y ** 2
 
         return distance_squared <= self.radius ** 2
-   
+        #Increases Ball speed According to Level/Increment
+    def increase_speed(self, increment: int):
+        self.x_velocity += increment if self.x_velocity > 0 else -increment
+        self.y_velocity += increment if self.y_velocity > 0 else -increment
+        
