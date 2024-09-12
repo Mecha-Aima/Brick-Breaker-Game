@@ -19,7 +19,7 @@ class Game:
         self.setup_pygame()
         self.load_assets()
 
-        self.Ball_Radius = 15
+        self.Ball_Radius = 9
         self.Ball_X = self.screen_width // 2 
         self.Ball_Y = self.screen_height // 2  
         self.Ball_X_Velocity = 7
