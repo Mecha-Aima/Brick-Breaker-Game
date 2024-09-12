@@ -196,17 +196,16 @@ class Game:
                 self.screen.blit(button_text, button_text_rect)
 
             pygame.display.flip()
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN: 
+                elif event.type == pygame.MOUSEBUTTONDOWN:
                     if Main_menu_but.collidepoint(mouse_pos):
+                        pygame.mixer.music.stop()  # Only stop music if returning to main menu
                         return False  # Go to Main Menu
                     elif Restart_button.collidepoint(mouse_pos):
-                        return True # Restart the game
-                    
+                        return True  # Restart the game
         #Collision 
     # return (pad,boundary/Bricks,Brick-Destroy,floor)
     def check_collision(self, ball: Ball, pad: Pad, brick: Brick) -> tuple:
@@ -277,6 +276,9 @@ class Game:
     
     # Game Loop
     def run(self):
+        # Ensure music is playing if sound is on and not already playing
+        if self.is_sound_on and not pygame.mixer.music.get_busy():
+          pygame.mixer.music.play(loops=-1)
         # Main game loop
         while not self.game_over:
             # Handle events
