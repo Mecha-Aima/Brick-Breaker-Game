@@ -5,7 +5,7 @@ from strikingPad import Pad
 from Brick import Brick
 
 class Game:
-    def __init__(self, level, score, highscore=0):
+    def __init__(self, level, score, highscore=0,is_sound_on=True):
        # Initialize the game with level and score as arguments
         self.level = level
         self.score = score
@@ -14,6 +14,7 @@ class Game:
         self.speed = 12  # Default pad speed
         self.game_over = False
         self.game_start = False
+        self.is_sound_on = is_sound_on  # Accept and store the sound state
         self.screen_width = 800
         self.screen_height = 600
         self.setup_pygame()
@@ -33,6 +34,10 @@ class Game:
 
         # Create objects
         self.create_objects()
+        #Plays music if sound is ON
+        if  self.is_sound_on:
+            pygame.mixer.music.play(loops=-1)
+        
 
     def create_objects(self):
         self.ball = Ball(self.Ball_Radius, self.Ball_Sprite, self.Ball_X, self.Ball_Y, self.screen_width, self.screen_height, self.Ball_X_Velocity, self.Ball_Y_Velocity)
@@ -47,7 +52,6 @@ class Game:
         pygame.display.set_caption("Brick Breaker")
         self.clock = pygame.time.Clock()
         self.small_text = pygame.font.Font(None, 24)
-        self.is_sound_on = True
     
     def load_assets(self):
         """Load all assets like sounds and images."""
@@ -55,7 +59,6 @@ class Game:
         self.Break_Sound = pygame.mixer.Sound("Assets/Break.wav")
         self.Paddle_Hit = pygame.mixer.Sound("Assets/Paddle_hit.wav")
         self.Game_OV_Sound = pygame.mixer.Sound("Assets/Game_lost.mp3")
-        self.evil_sound = pygame.mixer.Sound("Assets/evil.mp3")
         self.Win_sound = pygame.mixer.Sound("Assets/Win.wav")
         self.Background = pygame.image.load("Assets/back.jpg").convert()
         self.Game_OV_BG="Assets/Game_ov.jpg"
@@ -80,10 +83,8 @@ class Game:
         button_color = (255, 22, 15) 
         button_hover_color = (254, 147, 36)
         small_font = pygame.font.Font(None, 24)  # Smaller font for menu options
-
-        # Sound toggle state (True = On, False = Off)
-        if self.is_sound_on:
-            print("Playing music")
+        # Play music only if sound is enabled
+        if self.is_sound_on and not pygame.mixer.music.get_busy():
             pygame.mixer.music.play(loops=-1)
 
         while True:
@@ -127,17 +128,18 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN: 
-                    if start_button_rect.collidepoint(mouse_pos): 
-                        return True # Start the game
-                    elif sound_button_rect.collidepoint(mouse_pos):
-                        self.is_sound_on = not self.is_sound_on  # Toggle sound state
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if sound_button_rect.collidepoint(mouse_pos):
+                        # Toggle sound on/off
+                        self.is_sound_on = not self.is_sound_on
                         if self.is_sound_on:
                             pygame.mixer.music.play(loops=-1)
                         else:
                             pygame.mixer.music.stop()
-                    elif quit_button_rect.collidepoint(mouse_pos):
-                        return False
+                    if start_button_rect.collidepoint(mouse_pos):
+                        return True  # Start the game
+                    if quit_button_rect.collidepoint(mouse_pos):
+                        return False  # Exit the game
     
 
     def display_game_over(self, Game_OV):
@@ -147,7 +149,9 @@ class Game:
         button_color = (200, 200, 200)  # Light Gray
         button_hover_color = (255, 69, 0)  # Bright Red
         pygame.mixer.music.stop()
-        
+        #Stop music if sound on
+        if self.is_sound_on:
+            pygame.mixer.music.stop()
         # Load Game Over background
         game_ov_bg = pygame.image.load(Game_OV)
         game_ov_bg = pygame.transform.smoothscale(game_ov_bg, (self.screen_width, self.screen_height))
@@ -279,6 +283,8 @@ class Game:
         # Ensure music is playing if sound is on and not already playing
         if self.is_sound_on and not pygame.mixer.music.get_busy():
           pygame.mixer.music.play(loops=-1)
+        elif not self.is_sound_on and pygame.mixer.music.get_busy():
+            pygame.mixer.music.stop()
         # Main game loop
         while not self.game_over:
             # Handle events
